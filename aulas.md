@@ -7,3 +7,7 @@ https://www.youtube.com/watch?v=7L0MnVu1KEo
 a2_simple_rag
 https://github.com/infoslack/youtube/blob/main/rag-chatbot/rag_chatbot.ipynb
 https://www.youtube.com/watch?v=lAtA2nCTfF0
+
+# 3. Aula geral com exemplos (3h18m)
+buyer_lc_agent_v3
+https://www.youtube.com/watch?v=yF9kGESAi3M
