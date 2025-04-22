@@ -7,10 +7,7 @@ from langchain_core.prompts import ChatPromptTemplate
 
 load_dotenv()
 
-modelo = ChatOpenAI(
-    model="gpt-3.5-turbo",
-    api_key=os.getenv("OPENAI_API_KEY")
-)
+modelo = ChatOpenAI(model="gpt-3.5-turbo")
 parser = StrOutputParser()
 
 template_mensagem = ChatPromptTemplate.from_messages(

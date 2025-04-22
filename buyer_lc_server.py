@@ -1,4 +1,4 @@
-from buyer_lc_agent import chain
+from a1_simplest_gpt_call import chain
 from fastapi import FastAPI
 from langserve import add_routes
 
