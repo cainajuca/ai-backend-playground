@@ -7,11 +7,11 @@
 | File | Purpose |
 |------|---------|
 | **`a1_simplest_gpt_call.py`** | Minimal translation chain using **ChatPromptTemplate**, **ChatOpenAI**, and **StrOutputParser**. Receives a target language plus user text and returns the translation. |
-| **`buyer_lc_server.py`** | FastAPI wrapper that exposes the same chain as an HTTP endpoint via **LangServe**. Launches with Uvicorn and serves:<br>• `POST /tradutor/invoke` — JSON body `{"idioma": "<lang>", "texto": "<text>"}` returns the translation.<br>• `GET /tradutor/playground` — interactive UI for quick tests. |
+| **`a1_fast_api.py`** | FastAPI wrapper that exposes the same chain as an HTTP endpoint via **LangServe**. Launches with Uvicorn and serves:<br>• `POST /tradutor/invoke` — JSON body `{"idioma": "<lang>", "texto": "<text>"}` returns the translation.<br>• `GET /tradutor/playground` — interactive UI for quick tests. |
 
 ### Run locally
 ```bash
-    uvicorn buyer_lc_server:app --host localhost --port 8000
+    uvicorn a1_fast_api:app --host localhost --port 8000
 ```
 
 ### Example request
