@@ -6,3 +6,4 @@ __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
+buyer/qdrant_storage/*
