@@ -1,6 +1,5 @@
 [
     {
-        "cart_id": "D669C632-FF68-4899-9F00-BE7498724DC9",
         "sku_id": "F896F57D-CC4A-427A-B716-648932FB65E0",
         "description": "Asas de frango a granel",
         "brand": "Seara",
@@ -9,7 +8,6 @@
         "product_type": "Carne de Frango"
     },
     {
-        "cart_id": "D669C632-FF68-4899-9F00-BE7498724DC9",
         "sku_id": "A1883D60-A9BE-483A-B92C-A19C62C924B5",
         "description": "Asas de frango a granel",
         "brand": "Seara",
@@ -18,7 +16,6 @@
         "product_type": "Carne de Frango"
     },
     {
-        "cart_id": "D669C632-FF68-4899-9F00-BE7498724DC9",
         "sku_id": "EB4201AA-BCA7-4FB5-BB0D-B3FB2734CE54",
         "description": "Asas de frango a granel",
         "brand": "Seara",
@@ -27,4 +24,3 @@
         "product_type": "Carne de Frango"
     }
 ]
-  

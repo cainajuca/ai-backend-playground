@@ -22,7 +22,7 @@ def insert_cart(
         Document(
             page_content=f"{s['description']} {s['brand']} "
                          f"{s['size_value']} {s['unit']} {s['product_type']}",
-            metadata={**s, "cart_id": cart_id}  # << adicionado
+            metadata={**s, "cart_id": cart_id}  # << added
         )
         for s in skus
     ]
