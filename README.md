@@ -1,156 +1,82 @@
-## 🗂️ Quotation-Matcher Subsystem
+### README.md — **LangChain Playground**
 
-This micro-service receives a **POST** request with raw quotation items (free-text description, size and price) and responds with the same items enriched with the **internal `sku_id`** found via vector similarity search in a local Qdrant collection.
-
----
-
-### 1. Business Purpose
-| Goal | Why it matters |
-|------|----------------|
-| **Normalize supplier quotes** | Suppliers never know your SKU codes. The service maps their wording to your canonical catalog. |
-| **Guarantee consistency** | Every downstream process (pricing rules, ERP, stock updates) relies on the master `sku_id`. |
-| **Keep fast & local** | All data lives in a local Qdrant instance—no cloud latency or extra cost. |
+> ⚠️ This repository is **NOT** the production Buyer-API.  
+> It only hosts **proof-of-concept** Python scripts for studying LangChain, Qdrant, and FastAPI.  
+> The real implementation (Cart CRUD, Quotation-Matcher, full RAG) will live in a private repository.
 
 ---
 
-### 2. High-Level Flow
+## 📂 Project Layout
+
 ```
-┌────────────┐  HTTP POST /match
-│  BuyerAPI  │  [{ description, brand?, size_value, unit, price }]
-└─────┬──────┘
-      │
-      ▼
-┌────────────┐       1. generate embedding
-│  FastAPI   │───┐   2. similarity_search in Qdrant (collection: skus)
-│  (Python)  │   │   3. choose best match (optionally apply filters)
-└─────┬──────┘   │
-      │          │
-      ▼          │
-┌────────────┐◄──┘
-│   Qdrant   │
-└────────────┘
-      │
-      ▼
-HTTP 200 OK  →  [{ sku_id, price, confidence }]
+.
+├── a_overview/               # Step-by-step demos from tutorials
+│   ├── a1_simplest_gpt_call.py
+│   ├── a1_fast_api.py
+│   ├── a2_simple_rag.py
+│   ├── a3_message_history.py
+│   ├── a4_parallel.py
+│   └── a5_branching.py
+│
+├── buyer/                    # Integrated experiments
+│   ├── database/
+│   │   └── qdrant_storage/   # Vector store (created at runtime)
+│   ├── input.json            # Mock SKU data
+│   ├── seed_database.py      # Populates the cart_items collection
+│   ├── main.py               # CLI for testing the Quotation-Matcher
+│   └── all_logic_but_does_not_work.py
+│
+├── langchain_study_notes.md  # Extended study notes (source for this README)
+└── core_concepts.md          # General notebook-style notes
 ```
 
 ---
 
-### 3. Tech Stack
-| Layer | Choice |
-|-------|--------|
-| Runtime | **Python 3.12** |
-| Web framework | **FastAPI** |
-| Embeddings | `text-embedding-3-small` (OpenAI) |
-| Vector store | **Qdrant** (local / persisted under `./qdrant_storage`) |
-| Dependency management | `poetry` or `pip + requirements.txt` |
-| Container | `Dockerfile` provided (optional) |
-
----
-
-### 4. API Contract
-
-#### `POST /match`
-
-```jsonc
-// Request body
-{
-  "cart_id": "c50eb6e5-f38c-42cf-8e76-5bf1b4d1e96b",
-  "items": [
-    {
-      "description": "Chicken wings",
-      "brand": "Seara",
-      "size_value": 5.0,
-      "unit": "kg",
-      "price": 12.8,
-      "product_type": "Carne de Frango"
-    }
-  ]
-}
-```
-
-| Field | Type | Required | Notes |
-|-------|------|----------|-------|
-| `cart_id` | string (uuid) | yes | Used to filter the Cart items collection |
-| `items[]` | array | yes | One or more quotation lines |
-
-```jsonc
-// Successful response
-{
-  "items": [
-    {
-      "sku_id": "F896F57D-CC4A-427A-B716-648932FB65E0",
-      "price": 12.8,
-      "confidence": 0.93
-    }
-  ]
-}
-```
-
-*HTTP codes*
-
-| Code | Meaning |
-|------|---------|
-| `200 OK` | All items matched (or partially matched, see body) |
-| `207 Multi-Status` | Some items unmatched; field `unmatched[]` returned |
-| `400 Bad Request` | Invalid payload |
-| `500 Internal Server Error` | Unexpected failure (e.g. Qdrant offline) |
-
----
-
-### 5. Setup & Run - does not work yet
+## 🔧 Quick Setup
 
 ```bash
-# 1. install
 python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-
-# 2. prepare environment
-cp .env.example .env          # add OPENAI_API_KEY
-python scripts/index_skus.py  # loads input.json → Qdrant
-
-# 3. start the service
-uvicorn app.main:api --host 0.0.0.0 --port 8000
-```
-
-Optional Docker:
-
-```bash
-docker compose up --build
+pip install -r requirements.txt          # langchain, qdrant-client, fastapi, uvicorn...
+cp .env.example .env                     # add your OPENAI_API_KEY
 ```
 
 ---
 
-### 6. Indexing New SKUs - not done
-Run the helper whenever the catalog changes:
+## 🚀 Available Demos
 
-```bash
-python scripts/index_skus.py --file data/new_skus.json
-```
+| Script | Highlights | How to run |
+|--------|------------|------------|
+| **`a_overview/a1_simplest_gpt_call.py`** | Minimal GPT call via LangChain | `python a_overview/a1_simplest_gpt_call.py` |
+| **`a_overview/a1_fast_api.py`** | Wraps the same chain in FastAPI + LangServe | `uvicorn a_overview.a1_fast_api:app --reload`   → `POST /tradutor/invoke` |
+| **`a_overview/a2_simple_rag.py`** | Incremental RAG build using an in-memory Qdrant | `python a_overview/a2_simple_rag.py` |
+| **`buyer/main.py`** | Terminal Quotation-Matcher prototype saving items to `cart_items` | `python buyer/main.py` |
 
-The script **upserts** documents; existing `sku_id`s are updated, new ones are appended.
-
----
-
-### 7. Tuning Similarity -- will do
-
-| Parameter | Default | Effect |
-|-----------|---------|--------|
-| `k` | `5` | Candidates retrieved before scoring |
-| `min_score` | `0.40` | Threshold below which the item is flagged *unmatched* |
-| `filters` | brand / unit / size_value | Improve precision when duplicates exist |
-
-Adjust in `settings.py`.
+Detailed explanations live in **`langchain_study_notes.md`**.
 
 ---
 
-### 8. Roadmap - not sure about this
-- **Batch endpoint** for nightly catalog sync  
-- **Feedback loop**: store wrong matches and fine-tune filtering rules  
-- **Supplier-specific synonyms** collection  
-- **Auth** (JWT) once exposed outside the cluster
+## ✅ What *is* implemented
+
+1. **Embeddings & GPT chains** — prompt templates, parallel and branching flows.  
+2. **FastAPI + LangServe** — translation endpoint with auto-generated Swagger UI.  
+3. **Simple RAG** — loads a chunked ArXiv dataset, embeds with OpenAI, stores in Qdrant, retrieves context.  
+4. **CLI Quotation-Matcher** — extracts item data with GPT, matches to SKU IDs via Qdrant similarity search, prints a quote.
+
+> **Limitations**  
+> - No authentication, error handling, or automated tests.  
+> - Prototype code only—**not** production-grade.
 
 ---
 
-### 9. License
-MIT – see `LICENSE`.
+## 📌 Next Steps (handled in the private repo)
+
+| Feature | Target repo |
+|---------|-------------|
+| Full Cart CRUD REST | **Buyer-API (private)** |
+| `/match` Quotation-Matcher service | idem |
+| Persistent RAG with conversation history | idem |
+| Docker-compose, CI/CD pipeline | idem |
+
+---
+
+**License**: MIT (for this playground).
