@@ -45,3 +45,25 @@ def fetch_cart(cart_id: str, client: QdrantClient, collection_name: str):
     )
 
     return points
+
+def insert_cart_batch(
+    skus: List[Dict],
+    client: QdrantClient, 
+    embeddings: OpenAIEmbeddings,
+    collection_name: str):
+
+    store = QdrantVectorStore(
+        client=client,
+        embedding=embeddings,
+        collection_name=collection_name
+    )
+
+    docs = [
+        Document(
+            page_content=f"{s['description']} {s['brand']} "
+                         f"{s['size_value']} {s['unit']} {s['product_type']}",
+            metadata={**s, "cart_id": s['cart_id']}  # << added
+        )
+        for s in skus
+    ]
+    store.add_documents(docs)
