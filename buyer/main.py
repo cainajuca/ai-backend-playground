@@ -7,7 +7,7 @@ from langchain_openai import OpenAIEmbeddings
 from qdrant_client import QdrantClient
 
 from database.repositories.cart_repository import insert_cart, fetch_cart
-from database.repositories.common import ensure_collection
+from buyer.database.repositories.common_repository import ensure_collection
 
 # ---------- Configuration ----------
 load_dotenv() # needs OPENAI_API_KEY
