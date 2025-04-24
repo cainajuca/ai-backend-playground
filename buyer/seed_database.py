@@ -8,7 +8,7 @@ from qdrant_client import QdrantClient
 from qdrant_client.http.models import PointStruct
 
 from database.repositories.cart_repository import insert_cart_batch
-from buyer.database.repositories.common_repository import ensure_collection, any_items
+from database.repositories.common_repository import ensure_collection, any_items
     
 from collections import defaultdict
 from typing import Dict, List, Sequence, Tuple
