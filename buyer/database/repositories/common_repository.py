@@ -9,3 +9,11 @@ def ensure_collection(client: QdrantClient, collection_name: str):
             vectors_config=VectorParams(size=1536, distance=Distance.COSINE)
         )
         print(f"Collection '{collection_name}' created.")
+
+def any_items(client: QdrantClient, collection_name: str) -> bool:
+    """
+    Return True if the collection contains at least one point, otherwise False.
+    """
+    # Qdrant counts the points without bringing vectors or payloads.
+    total = client.count(collection_name=collection_name).count
+    return total > 0
