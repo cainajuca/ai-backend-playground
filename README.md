@@ -1,4 +1,4 @@
-### README.md — **LangChain Playground**
+# **LangChain Playground**
 
 > ⚠️ This repository is **NOT** the production Buyer-API.  
 > It only hosts **proof-of-concept** Python scripts for studying LangChain, Qdrant, and FastAPI.  
